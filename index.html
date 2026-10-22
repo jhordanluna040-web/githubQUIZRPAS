@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Examen RPAS DGAC Perú | Acreditación de Pilotos</title>
+  <meta name="description" content="Simulador de examen de acreditación transitoria de pilotos RPAS de la DGAC Perú. Banco oficial con preguntas y respuestas ordenadas aleatoriamente, feedback instantáneo y calificación de 75% aprobatorio.">
+  
+  <!-- Mobile & PWA Optimization -->
+  <meta name="theme-color" content="#0b1120">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quiz RPAS">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚁</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Canvas for Confetti -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">🚁</div>
+        <div class="brand-text">
+          <h1>EXAMEN RPAS PERÚ</h1>
+          <span>
+            DGAC - MTC 
+            <span class="badge-tag">NTC 001-2015</span>
+          </span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-sound-toggle" class="icon-btn" title="Activar/Desactivar Sonido" aria-label="Sonido">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button id="btn-theme-toggle" class="icon-btn" title="Cambiar Tema (Oscuro/Claro)" aria-label="Tema">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- VIEW 1: WELCOME / CONFIGURATION -->
+    <main id="view-welcome" class="view-screen active">
+      <section class="welcome-card">
+        <div class="hero-content">
+          <div class="hero-badge">Banco Oficial Actualizado 2025</div>
+          <h2>Simulador de Examen de Acreditación de Pilotos RPAS</h2>
+          <p>Prepárate para la acreditación transitoria de operadores de aeronaves pilotadas a distancia ante la Dirección General de Aeronáutica Civil (DGAC).</p>
+        </div>
+
+        <!-- Rules Grid -->
+        <div class="rules-grid">
+          <div class="rule-box">
+            <div class="rule-icon">🔀</div>
+            <div class="rule-info">
+              <h4>Aleatoriedad Total</h4>
+              <p>Preguntas y alternativas en orden aleatorio en cada sesión sin perder la respuesta correcta.</p>
+            </div>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">⚡</div>
+            <div class="rule-info">
+              <h4>Feedback Inmediato</h4>
+              <p>Conoce al instante si tu respuesta fue correcta o incorrecta con indicación visual clara.</p>
+            </div>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">🎯</div>
+            <div class="rule-info">
+              <h4>Nota Aprobatoria 75%</h4>
+              <p>Exigencia reglamentaria oficial DGAC para superar con éxito la prueba teórica.</p>
+            </div>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">📚</div>
+            <div class="rule-info">
+              <h4>180 Preguntas</h4>
+              <p>Banco íntegro que cubre Reglamentos, Meteorología, Factores Humanos y Seguridad.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="modes-section">
+          <span class="section-label">Selecciona la modalidad de examen:</span>
+          <div class="modes-grid">
+            <div class="mode-card selected" data-mode="full">
+              <div class="mode-header">
+                <span class="mode-title">🎓 Examen Completo</span>
+                <span class="mode-badge">180 Preguntas</span>
+              </div>
+              <p class="mode-desc">Resuelve todo el banco oficial completo en orden aleatorio. Ideal para preparación exhaustiva.</p>
+            </div>
+
+            <div class="mode-card" data-mode="sim">
+              <div class="mode-header">
+                <span class="mode-title">⏱️ Simulacro DGAC</span>
+                <span class="mode-badge">40 Preguntas</span>
+              </div>
+              <p class="mode-desc">Muestra aleatoria representativa de 40 preguntas como en la evaluación presencial formal.</p>
+            </div>
+
+            <div class="mode-card" data-mode="quick">
+              <div class="mode-header">
+                <span class="mode-title">⚡ Práctica Exprés</span>
+                <span class="mode-badge">20 Preguntas</span>
+              </div>
+              <p class="mode-desc">Sesión rápida y dinámica de 20 preguntas aleatorias para repasar en cualquier momento.</p>
+            </div>
+
+            <div class="mode-card" data-mode="category">
+              <div class="mode-header">
+                <span class="mode-title">📑 Por Materia</span>
+                <span class="mode-badge">Específico</span>
+              </div>
+              <p class="mode-desc">Entrena preguntas enfocadas en una materia específica (Meteorología, Reglamentos, etc.).</p>
+            </div>
+          </div>
+
+          <!-- Category dropdown if Category Mode is picked -->
+          <div id="category-picker-wrapper" class="category-select-wrapper">
+            <select id="select-category" class="select-input">
+              <option value="">Cargando materias...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Start CTA -->
+        <div class="start-action-container">
+          <button id="btn-start-quiz" class="btn-primary">
+            <span>Iniciar Examen</span>
+            <span>🚀</span>
+          </button>
+          <span class="disclaimer-text">Al presionar Iniciar, se generará una nueva secuencia única y aleatoria.</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- VIEW 2: ACTIVE QUIZ -->
+    <main id="view-quiz" class="view-screen">
+      <!-- Top Status Bar -->
+      <div class="quiz-top-bar">
+        <div class="quiz-progress-info">
+          <div class="q-counter">
+            Pregunta <span id="current-q-index">1</span> de <span id="total-q-count">180</span>
+          </div>
+          <div class="quiz-score-badge">
+            <span class="score-tag-correct">✅ <span id="live-correct-count">0</span></span>
+            <span class="score-tag-wrong">❌ <span id="live-wrong-count">0</span></span>
+          </div>
+        </div>
+
+        <div class="quiz-stats-right">
+          <div class="timer-box">
+            <span>⏱️</span>
+            <span id="quiz-timer">00:00</span>
+          </div>
+          <button id="btn-quit-quiz" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+            Salir
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Fill Bar -->
+      <div class="progress-bar-container">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+
+      <!-- Question Card -->
+      <article class="question-card">
+        <div class="q-meta">
+          <span id="q-category-tag" class="q-category-tag">Reglamentos y Normativa</span>
+          <span id="q-original-num" class="q-orig-num">Original #1</span>
+        </div>
+
+        <h3 id="q-text" class="q-text">Cargando pregunta...</h3>
+
+        <!-- Options Container -->
+        <div id="options-list" class="options-list">
+          <!-- Dynamic Option Buttons will be injected here -->
+        </div>
+
+        <!-- Immediate Feedback Box -->
+        <div id="feedback-box" class="feedback-box">
+          <div id="feedback-title" class="feedback-title">
+            <span id="feedback-icon">✅</span>
+            <span id="feedback-heading">¡Respuesta Correcta!</span>
+          </div>
+          <div id="feedback-detail" class="feedback-detail">
+            Excelente deducción.
+          </div>
+        </div>
+      </article>
+
+      <!-- Bottom Quiz Controls -->
+      <div class="quiz-actions">
+        <div style="font-size: 0.85rem; color: var(--text-dim);" id="keyboard-hint">
+          💡 Puedes presionar teclas 1-4 o A-D para responder y Enter para avanzar.
+        </div>
+        <button id="btn-next-question" class="btn-next" disabled>
+          <span>Siguiente Pregunta</span>
+          <span>➡️</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- VIEW 3: RESULTS -->
+    <main id="view-results" class="view-screen">
+      <section class="results-card">
+        <!-- Status Badge (Aprobado / No Aprobado) -->
+        <div id="result-status-badge" class="result-status-badge passed">
+          <span id="result-status-icon">🏆</span>
+          <span id="result-status-text">APROBADO</span>
+        </div>
+
+        <h2 id="result-headline" style="font-size: 1.8rem; margin-bottom: 0.5rem;">¡Felicitaciones! Has aprobado el examen</h2>
+        <p id="result-subtext" style="color: var(--text-muted); max-width: 580px; margin: 0 auto;">Cumples con el estándar del 75% reglamentario requerido por la DGAC del Perú.</p>
+
+        <!-- Big Percentage Display -->
+        <div class="percentage-display">
+          <div id="final-percentage-num" class="percentage-number passed">85.0%</div>
+          <div class="percentage-label">Porcentaje de Aciertos</div>
+          <div class="min-pass-note">(Calificación mínima aprobatoria: 75.0%)</div>
+        </div>
+
+        <!-- Detailed Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div id="metric-correct" class="metric-value" style="color: var(--success);">0</div>
+            <div class="metric-label">Aciertos</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-wrong" class="metric-value" style="color: var(--danger);">0</div>
+            <div class="metric-label">Errores</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-total" class="metric-value">0</div>
+            <div class="metric-label">Total Preguntas</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-time" class="metric-value" style="color: var(--primary-light);">00:00</div>
+            <div class="metric-label">Tiempo Total</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="results-actions">
+          <button id="btn-retry-all" class="btn-primary">
+            <span>Nuevo Examen (Reordenar)</span>
+            <span>🔄</span>
+          </button>
+          
+          <button id="btn-retry-failed" class="btn-outline" style="border-color: var(--danger); color: var(--danger);">
+            <span>Repasar Solo Incorrectas (<span id="count-failed-tag">0</span>)</span>
+            <span>🎯</span>
+          </button>
+
+          <button id="btn-show-review" class="btn-outline">
+            <span>Revisar Todas las Respuestas</span>
+            <span>📋</span>
+          </button>
+
+          <button id="btn-back-home" class="btn-secondary">
+            <span>Inicio</span>
+            <span>🏠</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- VIEW 4: DETAILED REVIEW -->
+    <main id="view-review" class="view-screen">
+      <div class="review-header">
+        <div>
+          <h2>Revisión Detallada de Respuestas</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Analiza cada pregunta, lo que marcaste y la respuesta correcta oficial.</p>
+        </div>
+        <div class="review-filters">
+          <button class="filter-btn active" data-filter="all">Todas (<span id="rf-count-all">0</span>)</button>
+          <button class="filter-btn" data-filter="correct">Correctas (<span id="rf-count-correct">0</span>)</button>
+          <button class="filter-btn" data-filter="wrong">Incorrectas (<span id="rf-count-wrong">0</span>)</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+        <input type="text" id="review-search" placeholder="Buscar por palabra clave..." class="select-input" style="max-width: 360px; padding: 0.5rem 0.85rem; font-size: 0.85rem;">
+        <button id="btn-back-to-results" class="btn-secondary" style="padding: 0.5rem 1rem;">
+          ⬅️ Volver a Resultados
+        </button>
+      </div>
+
+      <div id="review-list" class="review-list">
+        <!-- Injected review items -->
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>Simulador Educativo de Acreditación de Pilotos RPAS • Basado en el banco oficial DGAC - NTC 001-2015 y Ley N.° 30740.</p>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
